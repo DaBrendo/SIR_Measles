@@ -27,19 +27,31 @@ server <- function(input, output, session) {
   
   output$mymap <- renderLeaflet({
     leaflet() %>%
-      addProviderTiles(providers$Stamen.TonerLite,
-                       options = providerTileOptions(noWrap = TRUE)
+      addProviderTiles(providers$OpenMapSurfer.AdminBounds,
+                       options = providerTileOptions(noWrap = FALSE),
+                       group = "Administrative Boundries"
       ) %>%
-      addMarkers(data = points())
-  })
+      addProviderTiles(providers$Stamen.TonerLite,
+                       options = providerTileOptions(noWrap = FALSE),
+                       group = "Pretty Map"
+      ) %>%
+      addMarkers(data = points(), popup = "I am a School (maybe)!"
+      ) %>%
+      addLayersControl(
+          baseGroups = c("Administrative Boundries", "Pretty Map"),
+          options = layersControlOptions(collapsed = FALSE))
+      })
 }
 
 # Define UI for application
-ui <- fluidPage(
-  leafletOutput("mymap"),
-  p(),
-  actionButton("recalc", "New points")
-)
+ui <- dashboardPage(
+    dashboardHeader(title = "Schools in Colorado"),
+    dashboardSidebar(),
+    dashboardBody(
+      tags$style(type = "text/css", "#mymap {height: calc(100vh - 80px) !important;}"),
+      leafletOutput("mymap", width = '100%', height = 800)
+    )
+  )
 
 
 
